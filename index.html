@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weapon DPS Calculator!!!</title>
+    <title>Weapon DPS Calculator</title>
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -157,6 +157,17 @@
         <input type="number" id="lightningDamageMax" placeholder="Enter maximum Lightning Damage" required>
     </div>
 
+    <!-- New Fields: Chaos Damage -->
+    <div class="form-group">
+        <label for="chaosDamageMin">Chaos Damage (Min):</label>
+        <input type="number" id="chaosDamageMin" placeholder="Enter minimum Chaos Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="chaosDamageMax">Chaos Damage (Max):</label>
+        <input type="number" id="chaosDamageMax" placeholder="Enter maximum Chaos Damage" required>
+    </div>
+
     <div class="form-group">
         <label for="attacksPerSecond">Attacks per Second (APS):</label>
         <input type="number" id="attacksPerSecond" step="0.01" placeholder="Enter Attacks per Second" required>
@@ -213,6 +224,8 @@
             const fireDamageMax = parseFloat(document.getElementById('fireDamageMax').value) || 0;
             const lightningDamageMin = parseFloat(document.getElementById('lightningDamageMin').value) || 0;
             const lightningDamageMax = parseFloat(document.getElementById('lightningDamageMax').value) || 0;
+            const chaosDamageMin = parseFloat(document.getElementById('chaosDamageMin').value) || 0;
+            const chaosDamageMax = parseFloat(document.getElementById('chaosDamageMax').value) || 0;
             const attacksPerSecond = parseFloat(document.getElementById('attacksPerSecond').value) || 0;
             const criticalChance = parseFloat(document.getElementById('criticalChance').value) / 100 || 0;
             const timeInSeconds = parseFloat(document.getElementById('timeInSeconds').value) || 10;  // Default to 10 if not entered
@@ -222,14 +235,16 @@
             const avgColdDamage = (coldDamageMin + coldDamageMax) / 2;
             const avgFireDamage = (fireDamageMin + fireDamageMax) / 2;
             const avgLightningDamage = (lightningDamageMin + lightningDamageMax) / 2;
+            const avgChaosDamage = (chaosDamageMin + chaosDamageMax) / 2;
 
             // Calculate total damage per attack
             const totalPhysicalDamage = avgPhysicalDamage;
             const totalColdDamage = avgColdDamage;
             const totalFireDamage = avgFireDamage;
             const totalLightningDamage = avgLightningDamage;
+            const totalChaosDamage = avgChaosDamage;
 
-            const totalDamagePerAttack = totalPhysicalDamage + totalColdDamage + totalFireDamage + totalLightningDamage;
+            const totalDamagePerAttack = totalPhysicalDamage + totalColdDamage + totalFireDamage + totalLightningDamage + totalChaosDamage;
 
             // Calculate DPS (without criticals)
             const dpsNoCrits = totalDamagePerAttack * attacksPerSecond;
