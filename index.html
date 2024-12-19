@@ -127,7 +127,6 @@
         <input type="number" id="physicalDamageMax" placeholder="Enter maximum Physical Damage" required>
     </div>
 
-    <!-- Cold Damage Fields -->
     <div class="form-group">
         <label for="coldDamageMin">Cold Damage (Min):</label>
         <input type="number" id="coldDamageMin" placeholder="Enter minimum Cold Damage" required>
@@ -138,7 +137,6 @@
         <input type="number" id="coldDamageMax" placeholder="Enter maximum Cold Damage" required>
     </div>
 
-    <!-- Fire Damage Fields -->
     <div class="form-group">
         <label for="fireDamageMin">Fire Damage (Min):</label>
         <input type="number" id="fireDamageMin" placeholder="Enter minimum Fire Damage" required>
@@ -149,7 +147,6 @@
         <input type="number" id="fireDamageMax" placeholder="Enter maximum Fire Damage" required>
     </div>
 
-    <!-- Lightning Damage Fields -->
     <div class="form-group">
         <label for="lightningDamageMin">Lightning Damage (Min):</label>
         <input type="number" id="lightningDamageMin" placeholder="Enter minimum Lightning Damage" required>
@@ -160,7 +157,7 @@
         <input type="number" id="lightningDamageMax" placeholder="Enter maximum Lightning Damage" required>
     </div>
 
-    <!-- Chaos Damage Fields -->
+    <!-- New Fields: Chaos Damage -->
     <div class="form-group">
         <label for="chaosDamageMin">Chaos Damage (Min):</label>
         <input type="number" id="chaosDamageMin" placeholder="Enter minimum Chaos Damage" required>
@@ -171,7 +168,6 @@
         <input type="number" id="chaosDamageMax" placeholder="Enter maximum Chaos Damage" required>
     </div>
 
-    <!-- Other Inputs -->
     <div class="form-group">
         <label for="attacksPerSecond">Attacks per Second (APS):</label>
         <input type="number" id="attacksPerSecond" step="0.01" placeholder="Enter Attacks per Second" required>
@@ -182,6 +178,7 @@
         <input type="number" id="criticalChance" placeholder="Enter Critical Hit Chance" required>
     </div>
 
+    <!-- New Field: Total Damage in # seconds -->
     <div class="form-group">
         <label for="timeInSeconds">Total Damage in (Seconds):</label>
         <input type="number" id="timeInSeconds" placeholder="Enter time in seconds" required>
@@ -210,10 +207,103 @@
         </div>
     </div>
 
+    <!-- Note explaining the standard deviation simulation -->
+    <div class="note">
+        <p><strong>Note:</strong> The standard deviation of damage is simulated over 50 runs to give a more accurate estimate of variation in damage.</p>
+    </div>
+
     <script>
-        // Calculation logic remains the same from the previous implementation
         function calculateDPS() {
-            // Gather all the inputs and calculate as before
+            // Get input values for minimum and maximum damage
+            const weaponName = document.getElementById('weaponName').value || "Unnamed Weapon";
+            const physicalDamageMin = parseFloat(document.getElementById('physicalDamageMin').value) || 0;
+            const physicalDamageMax = parseFloat(document.getElementById('physicalDamageMax').value) || 0;
+            const coldDamageMin = parseFloat(document.getElementById('coldDamageMin').value) || 0;
+            const coldDamageMax = parseFloat(document.getElementById('coldDamageMax').value) || 0;
+            const fireDamageMin = parseFloat(document.getElementById('fireDamageMin').value) || 0;
+            const fireDamageMax = parseFloat(document.getElementById('fireDamageMax').value) || 0;
+            const lightningDamageMin = parseFloat(document.getElementById('lightningDamageMin').value) || 0;
+            const lightningDamageMax = parseFloat(document.getElementById('lightningDamageMax').value) || 0;
+            const chaosDamageMin = parseFloat(document.getElementById('chaosDamageMin').value) || 0;
+            const chaosDamageMax = parseFloat(document.getElementById('chaosDamageMax').value) || 0;
+            const attacksPerSecond = parseFloat(document.getElementById('attacksPerSecond').value) || 0;
+            const criticalChance = parseFloat(document.getElementById('criticalChance').value) / 100 || 0;
+            const timeInSeconds = parseFloat(document.getElementById('timeInSeconds').value) || 10;  // Default to 10 if not entered
+
+            // Calculate average damage for each type
+            const avgPhysicalDamage = (physicalDamageMin + physicalDamageMax) / 2;
+            const avgColdDamage = (coldDamageMin + coldDamageMax) / 2;
+            const avgFireDamage = (fireDamageMin + fireDamageMax) / 2;
+            const avgLightningDamage = (lightningDamageMin + lightningDamageMax) / 2;
+            const avgChaosDamage = (chaosDamageMin + chaosDamageMax) / 2;
+
+            // Calculate total damage per attack
+            const totalPhysicalDamage = avgPhysicalDamage;
+            const totalColdDamage = avgColdDamage;
+            const totalFireDamage = avgFireDamage;
+            const totalLightningDamage = avgLightningDamage;
+            const totalChaosDamage = avgChaosDamage;
+
+            const totalDamagePerAttack = totalPhysicalDamage + totalColdDamage + totalFireDamage + totalLightningDamage + totalChaosDamage;
+
+            // Calculate DPS (without criticals)
+            const dpsNoCrits = totalDamagePerAttack * attacksPerSecond;
+
+            // Simulate critical damage
+            const simulations = 50;
+            let simulatedDamages = [];
+            const criticalMultiplier = 1.5;
+
+            for (let i = 0; i < simulations; i++) {
+                const critDamage = totalDamagePerAttack * (1 + (Math.random() < criticalChance ? criticalMultiplier - 1 : 0));
+                simulatedDamages.push(critDamage * attacksPerSecond);
+            }
+
+            // Calculate standard deviation
+            const meanDamage = simulatedDamages.reduce((a, b) => a + b) / simulations;
+            const variance = simulatedDamages.reduce((a, b) => a + Math.pow(b - meanDamage, 2), 0) / simulations;
+            const stdDev = Math.sqrt(variance);
+
+            // Calculate total damage over time
+            const averageDPS = dpsNoCrits * (1 - criticalChance + criticalChance * criticalMultiplier);
+            const totalDamageOverTime = averageDPS * timeInSeconds;
+
+            // Display the results
+            document.getElementById('weaponNameDisplay').textContent = weaponName;
+            document.getElementById('dpsWithCrits').textContent = averageDPS.toFixed(2);
+            document.getElementById('dpsWithoutCrits').textContent = dpsNoCrits.toFixed(2);
+            document.getElementById('timeInSecondsDisplay').textContent = timeInSeconds;
+            document.getElementById('totalDamageOverTime').textContent = totalDamageOverTime.toFixed(2);
+
+            // Show standard deviation, ensuring it doesn't show too low or 0
+            document.getElementById('stdDevDamage').textContent = stdDev > 0.01 ? stdDev.toFixed(2) : 'N/A';  // Avoid showing small numbers as 0
+
+            // Show the results box
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function resetFields() {
+            // Reset all input fields
+            document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => input.value = '');
+            document.getElementById('result').style.display = 'none'; // Hide results box
+        }
+
+        function copyResults() {
+            // Gather the result data
+            const resultsText = `
+Weapon Name: ${document.getElementById('weaponNameDisplay').textContent}
+Total DPS (with Crits): ${document.getElementById('dpsWithCrits').textContent} DPS
+Base DPS (without Crits): ${document.getElementById('dpsWithoutCrits').textContent} DPS
+Total Damage in ${document.getElementById('timeInSecondsDisplay').textContent} seconds: ${document.getElementById('totalDamageOverTime').textContent} Damage
+Standard Deviation of Damage: ${document.getElementById('stdDevDamage').textContent}
+            `;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(resultsText.replace(/\n\s*\n/g, "\n").trim()).then(function() {
+                alert("Results copied to clipboard!");
+            }, function(err) {
+                alert("Error copying results: " + err);
+            });
         }
     </script>
 
