@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weapon DPS Calculator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #444;
+        }
+        input[type="number"], input[type="text"] {
+            padding: 10px;
+            width: 100%;
+            max-width: 250px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .reset-button {
+            background-color: #f44336;
+        }
+        .reset-button:hover {
+            background-color: #e53935;
+        }
+        .result {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hidden */
+            position: relative; /* For the copy button */
+        }
+        .result div {
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .result strong {
+            font-size: 1.1em;
+            color: #333;
+        }
+        .note {
+            font-size: 0.9em;
+            color: #888;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #1976D2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            input[type="number"], input[type="text"] {
+                width: 100%;
+            }
+            button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Weapon DPS Calculator</h1>
+
+    <!-- Weapon Name Field -->
+    <div class="form-group">
+        <label for="weaponName">Weapon Name:</label>
+        <input type="text" id="weaponName" placeholder="Enter Weapon Name">
+    </div>
+
+    <div class="form-group">
+        <label for="physicalDamageMin">Physical Damage (Min):</label>
+        <input type="number" id="physicalDamageMin" placeholder="Enter minimum Physical Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="physicalDamageMax">Physical Damage (Max):</label>
+        <input type="number" id="physicalDamageMax" placeholder="Enter maximum Physical Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="coldDamageMin">Cold Damage (Min):</label>
+        <input type="number" id="coldDamageMin" placeholder="Enter minimum Cold Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="coldDamageMax">Cold Damage (Max):</label>
+        <input type="number" id="coldDamageMax" placeholder="Enter maximum Cold Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="fireDamageMin">Fire Damage (Min):</label>
+        <input type="number" id="fireDamageMin" placeholder="Enter minimum Fire Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="fireDamageMax">Fire Damage (Max):</label>
+        <input type="number" id="fireDamageMax" placeholder="Enter maximum Fire Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="lightningDamageMin">Lightning Damage (Min):</label>
+        <input type="number" id="lightningDamageMin" placeholder="Enter minimum Lightning Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="lightningDamageMax">Lightning Damage (Max):</label>
+        <input type="number" id="lightningDamageMax" placeholder="Enter maximum Lightning Damage" required>
+    </div>
+
+    <div class="form-group">
+        <label for="attacksPerSecond">Attacks per Second (APS):</label>
+        <input type="number" id="attacksPerSecond" step="0.01" placeholder="Enter Attacks per Second" required>
+    </div>
+
+    <div class="form-group">
+        <label for="criticalChance">Critical Hit Chance (%):</label>
+        <input type="number" id="criticalChance" placeholder="Enter Critical Hit Chance" required>
+    </div>
+
+    <!-- New Field: Total Damage in # seconds -->
+    <div class="form-group">
+        <label for="timeInSeconds">Total Damage in (Seconds):</label>
+        <input type="number" id="timeInSeconds" placeholder="Enter time in seconds" required>
+    </div>
+
+    <button onclick="calculateDPS()">Calculate DPS</button>
+    <button class="reset-button" onclick="resetFields()">Reset Fields</button>
+
+    <!-- Results Section -->
+    <div class="result" id="result">
+        <button class="copy-btn" onclick="copyResults()">Copy Results</button>
+        <div>
+            <strong>Weapon Name:</strong> <span id="weaponNameDisplay"></span>
+        </div>
+        <div>
+            <strong>Total DPS (with Crits):</strong> <span id="dpsWithCrits">0</span> DPS
+        </div>
+        <div>
+            <strong>Base DPS (without Crits):</strong> <span id="dpsWithoutCrits">0</span> DPS
+        </div>
+        <div>
+            <strong>Total Damage in <span id="timeInSecondsDisplay">10</span> seconds:</strong> <span id="totalDamageOverTime">0</span> Damage
+        </div>
+        <div>
+            <strong>Standard Deviation of Damage:</strong> <span id="stdDevDamage">0</span>
+        </div>
+    </div>
+
+    <!-- Note explaining the standard deviation simulation -->
+    <div class="note">
+        <p><strong>Note:</strong> The standard deviation of damage is simulated over 50 runs to give a more accurate estimate of variation in damage.</p>
+    </div>
+
+    <script>
+        function calculateDPS() {
+            // Get input values for minimum and maximum damage
+            const weaponName = document.getElementById('weaponName').value || "Unnamed Weapon";
+            const physicalDamageMin = parseFloat(document.getElementById('physicalDamageMin').value) || 0;
+            const physicalDamageMax = parseFloat(document.getElementById('physicalDamageMax').value) || 0;
+            const coldDamageMin = parseFloat(document.getElementById('coldDamageMin').value) || 0;
+            const coldDamageMax = parseFloat(document.getElementById('coldDamageMax').value) || 0;
+            const fireDamageMin = parseFloat(document.getElementById('fireDamageMin').value) || 0;
+            const fireDamageMax = parseFloat(document.getElementById('fireDamageMax').value) || 0;
+            const lightningDamageMin = parseFloat(document.getElementById('lightningDamageMin').value) || 0;
+            const lightningDamageMax = parseFloat(document.getElementById('lightningDamageMax').value) || 0;
+            const attacksPerSecond = parseFloat(document.getElementById('attacksPerSecond').value) || 0;
+            const criticalChance = parseFloat(document.getElementById('criticalChance').value) / 100 || 0;
+            const timeInSeconds = parseFloat(document.getElementById('timeInSeconds').value) || 10;  // Default to 10 if not entered
+
+            // Calculate average damage for each type
+            const avgPhysicalDamage = (physicalDamageMin + physicalDamageMax) / 2;
+            const avgColdDamage = (coldDamageMin + coldDamageMax) / 2;
+            const avgFireDamage = (fireDamageMin + fireDamageMax) / 2;
+            const avgLightningDamage = (lightningDamageMin + lightningDamageMax) / 2;
+
+            // Calculate total damage per attack
+            const totalPhysicalDamage = avgPhysicalDamage;
+            const totalColdDamage = avgColdDamage;
+            const totalFireDamage = avgFireDamage;
+            const totalLightningDamage = avgLightningDamage;
+
+            const totalDamagePerAttack = totalPhysicalDamage + totalColdDamage + totalFireDamage + totalLightningDamage;
+
+            // Calculate DPS (without criticals)
+            const dpsNoCrits = totalDamagePerAttack * attacksPerSecond;
+
+            // Simulate critical damage
+            const simulations = 50;
+            let simulatedDamages = [];
+            const criticalMultiplier = 1.5;
+
+            for (let i = 0; i < simulations; i++) {
+                const critDamage = totalDamagePerAttack * (1 + (Math.random() < criticalChance ? criticalMultiplier - 1 : 0));
+                simulatedDamages.push(critDamage * attacksPerSecond);
+            }
+
+            // Calculate standard deviation
+            const meanDamage = simulatedDamages.reduce((a, b) => a + b) / simulations;
+            const variance = simulatedDamages.reduce((a, b) => a + Math.pow(b - meanDamage, 2), 0) / simulations;
+            const stdDev = Math.sqrt(variance);
+
+            // Calculate total damage over time
+            const averageDPS = dpsNoCrits * (1 - criticalChance + criticalChance * criticalMultiplier);
+            const totalDamageOverTime = averageDPS * timeInSeconds;
+
+            // Display the results
+            document.getElementById('weaponNameDisplay').textContent = weaponName;
+            document.getElementById('dpsWithCrits').textContent = averageDPS.toFixed(2);
+            document.getElementById('dpsWithoutCrits').textContent = dpsNoCrits.toFixed(2);
+            document.getElementById('timeInSecondsDisplay').textContent = timeInSeconds;
+            document.getElementById('totalDamageOverTime').textContent = totalDamageOverTime.toFixed(2);
+
+            // Show standard deviation, ensuring it doesn't show too low or 0
+            document.getElementById('stdDevDamage').textContent = stdDev > 0.01 ? stdDev.toFixed(2) : 'N/A';  // Avoid showing small numbers as 0
+
+            // Show the results box
+            document.getElementById('result').style.display = 'block';
+        }
+
+        function resetFields() {
+            // Reset all input fields
+            document.querySelectorAll('input[type="number"], input[type="text"]').forEach(input => input.value = '');
+            document.getElementById('result').style.display = 'none'; // Hide results box
+        }
+
+        function copyResults() {
+            // Gather the result data
+            const resultsText = `
+Weapon Name: ${document.getElementById('weaponNameDisplay').textContent}
+Total DPS (with Crits): ${document.getElementById('dpsWithCrits').textContent} DPS
+Base DPS (without Crits): ${document.getElementById('dpsWithoutCrits').textContent} DPS
+Total Damage in ${document.getElementById('timeInSecondsDisplay').textContent} seconds: ${document.getElementById('totalDamageOverTime').textContent} Damage
+Standard Deviation of Damage: ${document.getElementById('stdDevDamage').textContent}
+            `;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(resultsText.replace(/\n\s*\n/g, "\n").trim()).then(function() {
+                alert("Results copied to clipboard!");
+            }, function(err) {
+                alert("Error copying results: " + err);
+            });
+        }
+    </script>
+
+</body>
+</html>
